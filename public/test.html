@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>WebRTC Sample</title>
+  </head>
+  <body>
+    <article>
+      <style scoped>
+video { width: 200px; height: 200px; }
+canvas { width: 200px; height: 200px; }
+p { text-align: center; }
+      </style>
+      <h1>Snapshot Kiosk</h1>
+      <section id="splash">
+        <p id="errorMessage">Loading...</p>
+      </section>
+      <section id="app">
+        <p><video id="monitor" autoplay></video> <canvas id="photo"></canvas>
+        <p><input type=button value="snap" onclick="snapshot()">
+      </section>
+<script>
+var video = document.getElementById('monitor');
+var canvas = document.getElementById('photo');
+var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia,
+    URL = window.URL || window.webkitURL || window.msURL || window.oURL;
+
+getUserMedia = getUserMedia.bind(navigator);
+getUserMedia({ video: true, audio: true }, gotStream, noStream);
+
+function gotStream(stream) {
+  video.src = URL.createObjectURL(stream);
+  video.play();
+  video.onerror = function () {
+    stream.stop();
+  };
+  stream.onended = noStream;
+  video.onloadedmetadata = function () {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    document.getElementById('splash').hidden = true;
+    document.getElementById('app').hidden = false;
+  };
+}
+function noStream() {
+  document.getElementById('errorMessage').textContent = 'No camera available.';
+}
+function snapshot() {
+  canvas.getContext('2d').drawImage(video, 0, 0, 300, 200);
+}
+</script>
+    </article>
+  </body>
+</html>
